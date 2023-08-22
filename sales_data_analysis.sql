@@ -13,7 +13,7 @@ SELECT DISTINCT territory FROM sales_data_sample;
 -- I'm going to start by grouping the sales by productline using an aggregate function. 
 SELECT 
 	productline,
-    sum(sales) AS Revenue
+    	sum(sales) AS Revenue
 FROM
 	sales_data_sample
 GROUP BY productline
@@ -23,7 +23,7 @@ ORDER BY 2 DESC;
 -- I want to see what years the most sales were made. 
 SELECT 
 	year_id,
-    sum(sales) AS Revenue
+    	sum(sales) AS Revenue
 FROM
 	sales_data_sample
 GROUP BY year_id
@@ -43,7 +43,7 @@ ORDER BY month_id ASC;
 -- I'm going to take a look at the different deal sizes offered (small, medium, large) in order to see which one brought in the most revenue
 SELECT 
 	dealsize,
-    sum(sales) AS Revenue
+    	sum(sales) AS Revenue
 FROM
 	sales_data_sample
 GROUP BY dealsize
@@ -53,8 +53,8 @@ ORDER BY 2 DESC;
 -- I want to check the best month for sales in 2003 and how much was earned that month and the amount of orders placed. 
 SELECT
 	month_id,
-    sum(sales) AS Revenue,
-    COUNT(ordernumber) AS Frequency
+    	sum(sales) AS Revenue,
+    	COUNT(ordernumber) AS Frequency
 FROM
 	sales_data_sample
 WHERE
@@ -68,9 +68,9 @@ ORDER BY 2 DESC;
 -- Since November seems to be the best month for sales, I want to find out what product they're selling the most of in that month.
 SELECT
 	month_id,
-    productline,
-    sum(sales) AS Revenue,
-    counT(ordernumber)
+   	productline,
+    	sum(sales) AS Revenue,
+    	counT(ordernumber)
 FROM
 	sales_data_sample
 WHERE
@@ -89,12 +89,12 @@ DROP TABLE IF EXISTS #rfm -- #rfm is going to be a temp table created further do
 (
 	SELECT
 		customername,
-    	sum(sales) AS MonetaryValue,
-    	avg(sales) AS AvgMonetaryValue,
-    	COUNT(ordernumber) AS Frequency,
-    	max(orderdate) AS last_order_date,
-    	(SELECT max(orderdate) FROM sales_data_sample) AS max_order_date,
-    	DATEDIFF(DD, max(orderdate), (SELECT max(orderdate) FROM sales_data_sample)) AS Recency
+    		sum(sales) AS MonetaryValue,
+    		avg(sales) AS AvgMonetaryValue,
+    		COUNT(ordernumber) AS Frequency,
+    		max(orderdate) AS last_order_date,
+    		(SELECT max(orderdate) FROM sales_data_sample) AS max_order_date,
+    		DATEDIFF(DD, max(orderdate), (SELECT max(orderdate) FROM sales_data_sample)) AS Recency
 	FROM
 		sales_data_sample
 	GROUP BY customername
@@ -102,17 +102,19 @@ DROP TABLE IF EXISTS #rfm -- #rfm is going to be a temp table created further do
 ), -- Adding up all of the RFM values
 rfm_calc AS
 (
-	SELECT r.*,
+	SELECT 
+		r.*,
 		NTILE(4) OVER (order BY Recency) AS rfm_recency,
-    	NTILE(4) OVER (order BY Frequency) AS rfm_frequency,
-    	NTILE(4) OVER (order BY MonetaryValue) AS rfm_monetary
+    		NTILE(4) OVER (order BY Frequency) AS rfm_frequency,
+    		NTILE(4) OVER (order BY MonetaryValue) AS rfm_monetary
 	FROM rfm r 
 )
-SELECT c.*, 
-    -- Adding the numeric RFM values
-    rfm_recency+ rfm_frequency+ rfm_monetary AS rfm_cell,
-    -- Adding the RFM values as strings to create a triple digit number. I'm going to pass all of this into a temp table. 
-    CAST(rfm_recency as VARCHAR) + cast(rfm_frequency AS VARCHAR) + CAST(rfm_monetary As VARCHAR) AS rfm_cell_string
+SELECT 
+	c.*, 
+   	 -- Adding the numeric RFM values
+   	 rfm_recency+ rfm_frequency+ rfm_monetary AS rfm_cell,
+   	 -- Adding the RFM values as strings to create a triple digit number. I'm going to pass all of this into a temp table. 
+   	 CAST(rfm_recency as VARCHAR) + cast(rfm_frequency AS VARCHAR) + CAST(rfm_monetary As VARCHAR) AS rfm_cell_string
 INTO #rfm 
 FROM 
 	rfm_calc c 
@@ -122,18 +124,18 @@ FROM
 
 -- Using a CASE statement for segmentation using the rfm cell string I created above.
 SELECT 
-	customername,
-    rfm_recency,
-    rfm_frequency, 
-    rfm_monetary
-    CASE
-    	WHEN rfm_cell_string IN (111,112,121,122,123,132,211,212,114,141) THEN 'lost_customers'
-        WHEN rfm_cell_string IN (133,134,143,244,334,343,344,144) THEN 'slipping_away_cannot_lose'
-        WHEN rfm_cell_string IN (311,411,331) THEN 'new_customers'
-        WHEN rfm_cell_string IN (222,223,233,322) THEN 'potential_repeat_business'
-        WHEN rfm_cell_string IN (323,333,321,422,332,432) THEN 'active_customers'
-        WHEN rfm_cell_string IN (433,434,443,444) THEN 'loyal_customers'
-    END rfm_segment
+	 customername,
+   	 rfm_recency,
+   	 rfm_frequency, 
+   	 rfm_monetary
+   	 CASE
+    		WHEN rfm_cell_string IN (111,112,121,122,123,132,211,212,114,141) THEN 'lost_customers'
+        	WHEN rfm_cell_string IN (133,134,143,244,334,343,344,144) THEN 'slipping_away_cannot_lose'
+        	WHEN rfm_cell_string IN (311,411,331) THEN 'new_customers'
+       	 	WHEN rfm_cell_string IN (222,223,233,322) THEN 'potential_repeat_business'
+       		WHEN rfm_cell_string IN (323,333,321,422,332,432) THEN 'active_customers'
+       	 	WHEN rfm_cell_string IN (433,434,443,444) THEN 'loyal_customers'
+    	 END rfm_segment
 FROM #rfm 
 
 -- Checking what products are most often sold together. 
@@ -163,14 +165,4 @@ SELECT DISTINCT ordernumber, STUFF(
 FROM sales_data_sample AS s
 ORDER BY 2
 -- This gets all of the orders with only 2 product codes so I can see which 2 items sell together a lot. 
-
-
-
-
-
-
-
-
-
-
 
