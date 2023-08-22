@@ -117,7 +117,7 @@ SELECT
    	 CAST(rfm_recency as VARCHAR) + cast(rfm_frequency AS VARCHAR) + CAST(rfm_monetary As VARCHAR) AS rfm_cell_string
 INTO #rfm 
 FROM 
-	rfm_calc c 
+	rfm_calc c;
 -- The closer the last_order_date to the max date, the higher the rfm numbers. 
 -- Customer Daedalus Designs Imports last made a purchase 465 days ago. 
 -- The business should reach out to them to try and get some repeat business from them and see if their needs were met last time. 
@@ -136,7 +136,7 @@ SELECT
        		WHEN rfm_cell_string IN (323,333,321,422,332,432) THEN 'active_customers'
        	 	WHEN rfm_cell_string IN (433,434,443,444) THEN 'loyal_customers'
     	 END rfm_segment
-FROM #rfm 
+FROM #rfm;
 
 -- Checking what products are most often sold together. 
 -- Checking the product codes for the orders where 2 items are often sold together. 
@@ -163,6 +163,6 @@ SELECT DISTINCT ordernumber, STUFF(
   			, 1, 1, '') AS ProductCodes
             
 FROM sales_data_sample AS s
-ORDER BY 2
+ORDER BY 2;
 -- This gets all of the orders with only 2 product codes so I can see which 2 items sell together a lot. 
 
